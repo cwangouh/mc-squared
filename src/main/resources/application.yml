@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: formula-trainer
+  profiles:
+    default: local
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:55432/formula_trainer}
+    username: ${DB_USERNAME:formula_trainer}
+    password: ${DB_PASSWORD:formula_trainer}
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+server:
+  servlet:
+    session:
+      timeout: 8h
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}

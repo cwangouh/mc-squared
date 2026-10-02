@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-formula_trainer}
+      POSTGRES_USER: ${POSTGRES_USER:-formula_trainer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-formula_trainer}
+    ports:
+      - "${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-formula_trainer} -d ${POSTGRES_DB:-formula_trainer}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    profiles: ["app"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-formula_trainer}
+      DB_USERNAME: ${POSTGRES_USER:-formula_trainer}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-formula_trainer}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - media-data:/var/lib/formula-trainer/media
+
+volumes:
+  postgres-data:
+  media-data:

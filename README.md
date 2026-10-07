@@ -14,15 +14,16 @@ Backend for an MVP formula-card trainer.
 ## Local Run
 
 1. Copy `.env.example` to `.env` and adjust passwords if needed.
-2. Start PostgreSQL:
+2. Start PostgreSQL and the application:
+
+```bash
+docker compose up --build
+```
+
+3. Alternatively, start only PostgreSQL and run the application locally:
 
 ```bash
 docker compose up -d postgres
-```
-
-3. Run the application:
-
-```bash
 ./mvnw spring-boot:run
 ```
 
@@ -48,6 +49,18 @@ PostgreSQL is published on host port `55432` by default to avoid conflicts with 
 ```
 
 Tests use PostgreSQL through Testcontainers.
+
+## Formatting
+
+```bash
+./mvnw formatter:format
+```
+
+To check formatting without changing files:
+
+```bash
+./mvnw formatter:validate
+```
 
 ## Profiles
 

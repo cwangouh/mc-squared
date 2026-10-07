@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DeckRepository extends JpaRepository<Deck, UUID> {
 
     Optional<Deck> findByPublicId(UUID publicId);
+
 }

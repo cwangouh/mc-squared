@@ -17,7 +17,6 @@ services:
 
   app:
     build: .
-    profiles: ["app"]
     depends_on:
       postgres:
         condition: service_healthy

@@ -40,4 +40,5 @@ class FormulaTrainerApplicationTests {
         assertThat(flyway).isNotNull();
         assertThat(environment.getProperty("spring.jpa.hibernate.ddl-auto")).isEqualTo("none");
     }
+
 }

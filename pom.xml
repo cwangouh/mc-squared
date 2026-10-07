@@ -19,6 +19,9 @@
 
     <properties>
         <java.version>21</java.version>
+        <formatter-maven-plugin.version>2.29.0</formatter-maven-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <springdoc.version>3.0.0</springdoc.version>
         <testcontainers.version>1.21.3</testcontainers.version>
     </properties>
 
@@ -54,6 +57,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -96,6 +104,19 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>${formatter-maven-plugin.version}</version>
+                <configuration>
+                    <configFile>${project.basedir}/config/eclipse-java-formatter.xml</configFile>
+                    <compilerCompliance>${java.version}</compilerCompliance>
+                    <compilerSource>${java.version}</compilerSource>
+                    <compilerTargetPlatform>${java.version}</compilerTargetPlatform>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <lineEnding>LF</lineEnding>
+                </configuration>
             </plugin>
         </plugins>
     </build>

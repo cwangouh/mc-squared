@@ -24,11 +24,11 @@ public class HealthController {
             jdbcTemplate.queryForObject("select 1", Integer.class);
             return ResponseEntity.ok(new HealthResponse("UP"));
         } catch (DataAccessException exception) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(new HealthResponse("DOWN"));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new HealthResponse("DOWN"));
         }
     }
 
     public record HealthResponse(String status) {
     }
+
 }

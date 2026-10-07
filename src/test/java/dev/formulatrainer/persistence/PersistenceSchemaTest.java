@@ -64,10 +64,8 @@ class PersistenceSchemaTest {
         deckRepository.save(secondDeck);
         deckRepository.flush();
 
-        Integer linkCount = jdbcTemplate.queryForObject(
-                "select count(*) from deck_cards where card_id = ?",
-                Integer.class,
-                card.getId());
+        Integer linkCount = jdbcTemplate.queryForObject("select count(*) from deck_cards where card_id = ?",
+                Integer.class, card.getId());
         assertThat(linkCount).isEqualTo(2);
     }
 
@@ -126,8 +124,7 @@ class PersistenceSchemaTest {
         deckRepository.saveAndFlush(firstDeck);
         deckRepository.save(secondDeck);
 
-        assertThatThrownBy(() -> deckRepository.flush())
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> deckRepository.flush()).isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
@@ -137,7 +134,7 @@ class PersistenceSchemaTest {
         mediaRepository.save(new Media(card, CardSide.FRONT, "one.png", "one.png", "image/png", 128L, 16, 16, null));
         mediaRepository.save(new Media(card, CardSide.FRONT, "two.png", "two.png", "image/png", 128L, 16, 16, null));
 
-        assertThatThrownBy(() -> mediaRepository.flush())
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> mediaRepository.flush()).isInstanceOf(DataIntegrityViolationException.class);
     }
+
 }

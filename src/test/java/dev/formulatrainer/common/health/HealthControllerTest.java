@@ -42,10 +42,10 @@ class HealthControllerTest {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo("{\"status\":\"UP\"}");
     }
+
 }

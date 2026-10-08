@@ -32,27 +32,38 @@ public class DeckController {
 
     @PostMapping
     public ResponseEntity<DeckResponse> create(
-            @Valid @RequestBody DeckCreateRequest request) {
+        @Valid
+        @RequestBody
+        DeckCreateRequest request) {
         DeckResponse response = deckService.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/admin/decks/" + response.id())).body(response);
+        return ResponseEntity.created(URI.create("/api/v1/admin/decks/" + response.id()))
+            .body(response);
     }
 
     @GetMapping("/{deckId}")
-    public DeckResponse get(@PathVariable UUID deckId) {
+    public DeckResponse get(
+        @PathVariable
+        UUID deckId) {
         return deckService.get(deckId);
     }
 
     @PutMapping("/{deckId}")
     public DeckResponse update(
-            @PathVariable UUID deckId,
-            @Valid @RequestBody DeckCreateRequest request) {
+        @PathVariable
+        UUID deckId,
+        @Valid
+        @RequestBody
+        DeckCreateRequest request) {
         return deckService.update(deckId, request);
     }
 
     @DeleteMapping("/{deckId}")
-    public ResponseEntity<Void> delete(@PathVariable UUID deckId) {
+    public ResponseEntity<Void> delete(
+        @PathVariable
+        UUID deckId) {
         deckService.delete(deckId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+            .build();
     }
 
 }

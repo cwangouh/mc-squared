@@ -47,7 +47,8 @@ public class DeckService {
     @Transactional
     public void delete(UUID deckId) {
         Deck deck = findDeck(deckId);
-        deck.getCards().clear();
+        deck.getCards()
+            .clear();
         deckRepository.delete(deck);
     }
 

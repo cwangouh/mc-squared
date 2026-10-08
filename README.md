@@ -75,3 +75,23 @@ Required database variables:
 - `DB_PASSWORD`
 
 Hibernate schema generation is disabled. Database schema changes are managed by Flyway migrations.
+
+## Authentication Flow
+
+Fetch a CSRF token before changing requests:
+
+```bash
+curl -c cookies.txt http://localhost:8080/api/v1/auth/csrf
+```
+
+Send the returned `token` as `X-CSRF-TOKEN` when logging in:
+
+```bash
+curl -b cookies.txt -c cookies.txt \
+  -H 'Content-Type: application/json' \
+  -H 'X-CSRF-TOKEN: <token>' \
+  -d '{"username":"admin","password":"admin"}' \
+  http://localhost:8080/api/v1/auth/login
+```
+
+Fetch a fresh CSRF token after login before protected `POST`, `PUT`, or `DELETE` requests.

@@ -19,6 +19,12 @@ server:
     session:
       timeout: 8h
 
+app:
+  security:
+    admin:
+      username: ${ADMIN_USERNAME:admin}
+      password-hash: ${ADMIN_PASSWORD_HASH:$2a$10$10iMR0mIACkXv7QUMnJ2iODWtxsBHWzNBc7thK4W2TtDWQsBXmhXK}
+
 ---
 spring:
   config:
@@ -38,3 +44,8 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+app:
+  security:
+    admin:
+      username: ${ADMIN_USERNAME:}
+      password-hash: ${ADMIN_PASSWORD_HASH:}

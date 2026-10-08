@@ -38,11 +38,13 @@ class HealthControllerTest {
     @Test
     void healthReturnsUpWithoutAuthentication() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/v1/health"))
-                .GET()
-                .build();
+            .uri(
+                URI.create("http://localhost:" + port + "/api/v1/health"))
+            .GET()
+            .build();
 
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = HttpClient.newHttpClient()
+            .send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo("{\"status\":\"UP\"}");

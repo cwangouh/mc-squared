@@ -22,11 +22,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException exception) {
         List<FieldErrorResponse> fieldErrors = exception.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .sorted(Comparator.comparing(FieldError::getField))
-                .map(error -> new FieldErrorResponse(error.getField(), error.getDefaultMessage()))
-                .toList();
+            .getFieldErrors()
+            .stream()
+            .sorted(
+                Comparator.comparing(FieldError::getField))
+            .map(
+                error -> new FieldErrorResponse(error.getField(), error.getDefaultMessage()))
+            .toList();
 
         return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Request validation failed", fieldErrors);
     }
@@ -34,11 +36,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException exception) {
         List<FieldErrorResponse> fieldErrors = exception.getConstraintViolations()
-                .stream()
-                .map(violation -> new FieldErrorResponse(violation.getPropertyPath().toString(),
-                        violation.getMessage()))
-                .sorted(Comparator.comparing(FieldErrorResponse::field))
-                .toList();
+            .stream()
+            .map(
+                violation -> new FieldErrorResponse(
+                    violation.getPropertyPath()
+                        .toString(),
+                    violation.getMessage()))
+            .sorted(
+                Comparator.comparing(FieldErrorResponse::field))
+            .toList();
 
         return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Request validation failed", fieldErrors);
     }
@@ -73,9 +79,10 @@ public class GlobalExceptionHandler {
         return build(status, code, message, List.of());
     }
 
-    private static ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message,
-            List<FieldErrorResponse> fieldErrors) {
-        return ResponseEntity.status(status).body(new ApiErrorResponse(status.value(), code, message, fieldErrors));
+    private static ResponseEntity<ApiErrorResponse> build(
+        HttpStatus status, String code, String message, List<FieldErrorResponse> fieldErrors) {
+        return ResponseEntity.status(status)
+            .body(new ApiErrorResponse(status.value(), code, message, fieldErrors));
     }
 
 }

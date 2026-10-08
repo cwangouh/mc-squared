@@ -67,8 +67,9 @@ public class Media {
     protected Media() {
     }
 
-    public Media(Card card, CardSide side, String storageKey, String originalFilename, String contentType,
-            long sizeBytes, int widthPx, int heightPx, String altText) {
+    public Media(
+        Card card, CardSide side, String storageKey, String originalFilename, String contentType, long sizeBytes,
+        int widthPx, int heightPx, String altText) {
         this.card = card;
         this.side = side;
         this.storageKey = storageKey;

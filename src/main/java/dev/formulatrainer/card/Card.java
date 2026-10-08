@@ -98,7 +98,8 @@ public class Card {
     @PreRemove
     private void removeFromDecks() {
         for (Deck deck : new HashSet<>(decks)) {
-            deck.getCards().remove(this);
+            deck.getCards()
+                .remove(this);
         }
         decks.clear();
     }

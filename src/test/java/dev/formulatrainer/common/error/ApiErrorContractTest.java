@@ -57,11 +57,11 @@ class ApiErrorContractTest {
     @Test
     void invalidDeckRequestUsesUnifiedFieldErrorFormat() throws Exception {
         String body = """
-                {
-                  "title": "",
-                  "description": "%s"
-                }
-                """.formatted("x".repeat(2001));
+            {
+              "title": "",
+              "description": "%s"
+            }
+            """.formatted("x".repeat(2001));
 
         HttpResponse<String> response = post("/api/v1/test/decks", body);
 
@@ -76,11 +76,11 @@ class ApiErrorContractTest {
     @Test
     void invalidCardContentLengthIsReportedAsFieldError() throws Exception {
         String body = """
-                {
-                  "frontContent": "%s",
-                  "backContent": "ok"
-                }
-                """.formatted("x".repeat(20001));
+            {
+              "frontContent": "%s",
+              "backContent": "ok"
+            }
+            """.formatted("x".repeat(20001));
 
         HttpResponse<String> response = post("/api/v1/test/cards", body);
 
@@ -92,10 +92,10 @@ class ApiErrorContractTest {
     @Test
     void invalidMediaAltTextLengthIsReportedAsFieldError() throws Exception {
         String body = """
-                {
-                  "altText": "%s"
-                }
-                """.formatted("x".repeat(501));
+            {
+              "altText": "%s"
+            }
+            """.formatted("x".repeat(501));
 
         HttpResponse<String> response = put("/api/v1/test/media", body);
 
@@ -134,33 +134,38 @@ class ApiErrorContractTest {
     }
 
     private HttpResponse<String> get(String path) throws Exception {
-        HttpRequest request = baseRequest(path).GET().build();
+        HttpRequest request = baseRequest(path).GET()
+            .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpResponse<String> post(String path, String body) throws Exception {
         HttpRequest request = baseRequest(path).header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
+            .POST(
+                HttpRequest.BodyPublishers.ofString(body))
+            .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpResponse<String> put(String path, String body) throws Exception {
         HttpRequest request = baseRequest(path).header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .PUT(HttpRequest.BodyPublishers.ofString(body))
-                .build();
+            .PUT(
+                HttpRequest.BodyPublishers.ofString(body))
+            .build();
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpRequest.Builder baseRequest(String path) {
         return HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + path))
-                .header("Authorization", basicAuthHeader());
+            .uri(URI.create("http://localhost:" + port + path))
+            .header(
+                "Authorization", basicAuthHeader());
     }
 
     private String basicAuthHeader() {
         String credentials = "test-admin:test-password";
-        String encoded = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        String encoded = Base64.getEncoder()
+            .encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         return "Basic " + encoded;
     }
 
@@ -169,21 +174,24 @@ class ApiErrorContractTest {
     static class ContractProbeController {
 
         @PostMapping("/decks")
-        void validateDeck(@Valid
-        @RequestBody
-        DeckCreateRequest request) {
+        void validateDeck(
+            @Valid
+            @RequestBody
+            DeckCreateRequest request) {
         }
 
         @PostMapping("/cards")
-        void validateCard(@Valid
-        @RequestBody
-        CardSaveRequest request) {
+        void validateCard(
+            @Valid
+            @RequestBody
+            CardSaveRequest request) {
         }
 
         @PutMapping("/media")
-        void validateMedia(@Valid
-        @RequestBody
-        MediaUploadRequest request) {
+        void validateMedia(
+            @Valid
+            @RequestBody
+            MediaUploadRequest request) {
         }
 
         @GetMapping("/decks/{deckId}")

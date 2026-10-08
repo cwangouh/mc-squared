@@ -57,12 +57,14 @@ public class Deck {
 
     public void addCard(Card card) {
         cards.add(card);
-        card.getDecks().add(this);
+        card.getDecks()
+            .add(this);
     }
 
     public void removeCard(Card card) {
         cards.remove(card);
-        card.getDecks().remove(this);
+        card.getDecks()
+            .remove(this);
     }
 
     public UUID getId() {

@@ -64,8 +64,8 @@ class PersistenceSchemaTest {
         deckRepository.save(secondDeck);
         deckRepository.flush();
 
-        Integer linkCount = jdbcTemplate.queryForObject("select count(*) from deck_cards where card_id = ?",
-                Integer.class, card.getId());
+        Integer linkCount = jdbcTemplate.queryForObject(
+            "select count(*) from deck_cards where card_id = ?", Integer.class, card.getId());
         assertThat(linkCount).isEqualTo(2);
     }
 
@@ -92,9 +92,10 @@ class PersistenceSchemaTest {
         Card card = cardRepository.save(new Card("front", "back"));
         Deck deck = new Deck("Deck", null);
         deck.addCard(card);
-        Media media = new Media(card, CardSide.FRONT, "cards/front.png", "front.png", "image/png", 128L, 16, 16,
-                "front");
-        card.getMedia().add(media);
+        Media media = new Media(
+            card, CardSide.FRONT, "cards/front.png", "front.png", "image/png", 128L, 16, 16, "front");
+        card.getMedia()
+            .add(media);
         deckRepository.save(deck);
         mediaRepository.save(media);
         cardRepository.flush();
@@ -104,10 +105,10 @@ class PersistenceSchemaTest {
         cardRepository.delete(card);
         cardRepository.flush();
 
-        Integer linkCount = jdbcTemplate.queryForObject("select count(*) from deck_cards where card_id = ?",
-                Integer.class, cardId);
-        Integer mediaCount = jdbcTemplate.queryForObject("select count(*) from media where card_id = ?", Integer.class,
-                cardId);
+        Integer linkCount = jdbcTemplate.queryForObject(
+            "select count(*) from deck_cards where card_id = ?", Integer.class, cardId);
+        Integer mediaCount = jdbcTemplate.queryForObject(
+            "select count(*) from media where card_id = ?", Integer.class, cardId);
         assertThat(linkCount).isZero();
         assertThat(mediaCount).isZero();
     }

@@ -60,6 +60,16 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", exception.getMessage());
     }
 
+    @ExceptionHandler(PayloadTooLargeException.class)
+    public ResponseEntity<ApiErrorResponse> handlePayloadTooLarge(PayloadTooLargeException exception) {
+        return build(HttpStatus.CONTENT_TOO_LARGE, "CONTENT_TOO_LARGE", exception.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedMediaFileException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnsupportedMediaFile(UnsupportedMediaFileException exception) {
+        return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", exception.getMessage());
+    }
+
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ApiErrorResponse> handleNotFound(Exception exception) {
         return build(HttpStatus.NOT_FOUND, "NOT_FOUND", "Resource not found");

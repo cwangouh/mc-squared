@@ -10,11 +10,10 @@ public class OpenApiConfig {
 
     @Bean
     OpenAPI formulaTrainerOpenApi() {
-        return new OpenAPI().info(
-            new Info().title("Formula Trainer API")
-                .version("0.0.1")
-                .description(
-                    "Backend API for formula training decks and cards."));
+        Info info = new Info().title("Formula Trainer API")
+            .version("0.0.1")
+            .description("Backend API for formula training decks and cards.");
+        return new OpenAPI().info(info);
     }
 
 }

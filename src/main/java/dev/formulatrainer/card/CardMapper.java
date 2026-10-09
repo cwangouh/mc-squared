@@ -5,12 +5,12 @@ import dev.formulatrainer.media.CardSide;
 import dev.formulatrainer.media.Media;
 import dev.formulatrainer.media.api.MediaResponse;
 
-class CardMapper {
+public class CardMapper {
 
     private CardMapper() {
     }
 
-    static CardResponse toResponse(Card card) {
+    public static CardResponse toResponse(Card card) {
         return new CardResponse(
             card.getId(),
             card.getFrontContent(),

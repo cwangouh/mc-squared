@@ -7,6 +7,10 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:55432/formula_trainer}
     username: ${DB_USERNAME:formula_trainer}
     password: ${DB_PASSWORD:formula_trainer}
+  servlet:
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 12MB
   flyway:
     enabled: true
   jpa:
@@ -20,6 +24,11 @@ server:
       timeout: 8h
 
 app:
+  media:
+    storage-path: ${MEDIA_STORAGE_PATH:/var/lib/formula-trainer/media}
+    max-size-bytes: 5242880
+    max-width-px: 4096
+    max-height-px: 4096
   security:
     admin:
       username: ${ADMIN_USERNAME:admin}
@@ -34,6 +43,9 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+app:
+  media:
+    storage-path: ${MEDIA_STORAGE_PATH:/tmp/formula-trainer-media-test}
 
 ---
 spring:

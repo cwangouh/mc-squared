@@ -1,6 +1,7 @@
 package dev.formulatrainer.common.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import dev.formulatrainer.media.MediaProperties;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(SecurityProperties.class)
+@EnableConfigurationProperties({SecurityProperties.class, MediaProperties.class})
 public class SecurityConfig {
 
     @Bean
@@ -43,6 +44,8 @@ public class SecurityConfig {
                         "/api/v1/auth/csrf",
                         "/api/v1/health",
                         "/api/v1/public/**",
+                        "/api/v1/media/**",
+                        "/media/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html")

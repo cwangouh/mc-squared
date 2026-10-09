@@ -129,4 +129,14 @@ public class Media {
         return updatedAt;
     }
 
+    public void replaceWith(StoredImage image, String altText) {
+        this.storageKey = image.storageKey();
+        this.originalFilename = image.originalFilename();
+        this.contentType = image.contentType();
+        this.sizeBytes = image.sizeBytes();
+        this.widthPx = image.widthPx();
+        this.heightPx = image.heightPx();
+        this.altText = altText;
+    }
+
 }

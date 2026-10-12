@@ -26,7 +26,7 @@ public class MediaService {
     private final ImageStorageService imageStorageService;
 
     public MediaService(
-            CardRepository cardRepository, MediaRepository mediaRepository, ImageStorageService imageStorageService) {
+        CardRepository cardRepository, MediaRepository mediaRepository, ImageStorageService imageStorageService) {
         this.cardRepository = cardRepository;
         this.mediaRepository = mediaRepository;
         this.imageStorageService = imageStorageService;
@@ -40,20 +40,20 @@ public class MediaService {
         String oldStorageKey = null;
         try {
             Media media = mediaRepository.findByCardAndSide(card, side)
-                    .orElse(null);
+                .orElse(null);
             if (media == null) {
                 media = new Media(
-                        card,
-                        side,
-                        image.storageKey(),
-                        image.originalFilename(),
-                        image.contentType(),
-                        image.sizeBytes(),
-                        image.widthPx(),
-                        image.heightPx(),
-                        altText);
+                    card,
+                    side,
+                    image.storageKey(),
+                    image.originalFilename(),
+                    image.contentType(),
+                    image.sizeBytes(),
+                    image.widthPx(),
+                    image.heightPx(),
+                    altText);
                 card.getMedia()
-                        .add(media);
+                    .add(media);
                 mediaRepository.save(media);
             } else {
                 oldStorageKey = media.getStorageKey();
@@ -71,7 +71,7 @@ public class MediaService {
     public void delete(UUID cardId, CardSide side) {
         Card card = findCard(cardId);
         Media media = mediaRepository.findByCardAndSide(card, side)
-                .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
 
         if (side == CardSide.FRONT && isBlank(card.getFrontContent())) {
             throw new IllegalArgumentException("Front side cannot be empty");
@@ -81,7 +81,7 @@ public class MediaService {
         }
 
         card.getMedia()
-                .remove(media);
+            .remove(media);
         mediaRepository.delete(media);
         deleteFileAfterCommit(media.getStorageKey());
     }
@@ -89,8 +89,8 @@ public class MediaService {
     @Transactional(readOnly = true)
     public StoredMedia read(UUID mediaId) {
         Media media = mediaRepository.findById(mediaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
-                
+            .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
+
         Path path = imageStorageService.path(media.getStorageKey());
         Resource resource = new FileSystemResource(path);
         if (!resource.exists()) {
@@ -101,7 +101,7 @@ public class MediaService {
 
     private Card findCard(UUID cardId) {
         return cardRepository.findById(cardId)
-                .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
     }
 
     private void deleteFileAfterCommit(String storageKey) {
@@ -138,7 +138,7 @@ public class MediaService {
 
     private static boolean isBlank(String value) {
         return value == null || value.trim()
-                .isEmpty();
+            .isEmpty();
     }
 
     public record StoredMedia(Resource resource, MediaType contentType) {

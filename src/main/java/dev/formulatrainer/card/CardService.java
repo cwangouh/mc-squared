@@ -12,7 +12,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-j
+
 @Service
 public class CardService {
 
@@ -32,9 +32,9 @@ public class CardService {
     public List<CardResponse> list(UUID deckId) {
         ensureDeckExists(deckId);
         return cardRepository.findAllByDeckIdOrderByCreatedAtAscIdAsc(deckId)
-                .stream()
-                .map(CardMapper::toResponse)
-                .toList();
+            .stream()
+            .map(CardMapper::toResponse)
+            .toList();
     }
 
     @Transactional
@@ -48,12 +48,12 @@ public class CardService {
 
     @Transactional
     public CardResponse create(
-            UUID deckId,
-            CardSaveRequest request,
-            MultipartFile frontImage,
-            String frontImageAltText,
-            MultipartFile backImage,
-            String backImageAltText) {
+        UUID deckId,
+        CardSaveRequest request,
+        MultipartFile frontImage,
+        String frontImageAltText,
+        MultipartFile backImage,
+        String backImageAltText) {
 
         validateSideHasContent(request.frontContent(), frontImage, "Front content or image is required");
         validateSideHasContent(request.backContent(), backImage, "Back content or image is required");
@@ -100,12 +100,12 @@ public class CardService {
 
     private Deck findDeck(UUID deckId) {
         return deckRepository.findById(deckId)
-                .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Deck not found"));
     }
 
     private Card findCard(UUID cardId) {
         return cardRepository.findById(cardId)
-                .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Card not found"));
     }
 
     private static void validateTextSides(CardSaveRequest request) {
@@ -131,8 +131,8 @@ public class CardService {
 
     private static boolean hasMedia(Card card, CardSide side) {
         return card.getMedia()
-                .stream()
-                .anyMatch(media -> media.getSide() == side);
+            .stream()
+            .anyMatch(media -> media.getSide() == side);
     }
 
     private static boolean hasFile(MultipartFile file) {
@@ -141,7 +141,7 @@ public class CardService {
 
     private static boolean isBlank(String value) {
         return value == null || value.trim()
-                .isEmpty();
+            .isEmpty();
     }
 
 }

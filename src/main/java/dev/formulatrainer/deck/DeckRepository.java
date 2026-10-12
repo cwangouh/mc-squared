@@ -14,6 +14,7 @@ public interface DeckRepository extends JpaRepository<Deck, UUID> {
     @EntityGraph(attributePaths = "cards")
     Optional<Deck> findById(UUID id);
 
+    @EntityGraph(attributePaths = {"cards", "cards.media"})
     Optional<Deck> findByPublicId(UUID publicId);
 
 }

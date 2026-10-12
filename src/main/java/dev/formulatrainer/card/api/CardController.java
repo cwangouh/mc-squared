@@ -28,50 +28,66 @@ public class CardController {
     }
 
     @GetMapping("/api/v1/admin/decks/{deckId}/cards")
-    public List<CardResponse> list(@PathVariable("deckId") UUID deckId) {
+    public List<CardResponse> list(@PathVariable("deckId")
+    UUID deckId) {
         return cardService.list(deckId);
     }
 
     @PostMapping("/api/v1/admin/decks/{deckId}/cards")
     public ResponseEntity<CardResponse> create(
-            @PathVariable("deckId") UUID deckId,
-            @Valid @RequestBody CardSaveRequest request) {
+        @PathVariable("deckId")
+        UUID deckId,
+        @Valid
+        @RequestBody
+        CardSaveRequest request) {
         CardResponse response = cardService.create(deckId, request);
         return ResponseEntity.created(URI.create("/api/v1/admin/cards/" + response.id()))
-                .body(response);
+            .body(response);
     }
 
     @PostMapping(value = "/api/v1/admin/decks/{deckId}/cards", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CardResponse> createMultipart(
-            @PathVariable("deckId") UUID deckId,
-            @Valid @RequestPart("card") CardSaveRequest request,
-            @RequestPart(value = "frontImage", required = false) MultipartFile frontImage,
-            @RequestParam(value = "frontImageAltText", required = false) String frontImageAltText,
-            @RequestPart(value = "backImage", required = false) MultipartFile backImage,
-            @RequestParam(value = "backImageAltText", required = false) String backImageAltText) {
+        @PathVariable("deckId")
+        UUID deckId,
+        @Valid
+        @RequestPart("card")
+        CardSaveRequest request,
+        @RequestPart(value = "frontImage", required = false)
+        MultipartFile frontImage,
+        @RequestParam(value = "frontImageAltText", required = false)
+        String frontImageAltText,
+        @RequestPart(value = "backImage", required = false)
+        MultipartFile backImage,
+        @RequestParam(value = "backImageAltText", required = false)
+        String backImageAltText) {
         CardResponse response = cardService.create(
-                deckId, request, frontImage, frontImageAltText, backImage, backImageAltText);
+            deckId, request, frontImage, frontImageAltText, backImage, backImageAltText);
         return ResponseEntity.created(URI.create("/api/v1/admin/cards/" + response.id()))
-                .body(response);
+            .body(response);
     }
 
     @GetMapping("/api/v1/admin/cards/{cardId}")
-    public CardResponse get(@PathVariable("cardId") UUID cardId) {
+    public CardResponse get(@PathVariable("cardId")
+    UUID cardId) {
         return cardService.get(cardId);
     }
 
     @PutMapping("/api/v1/admin/cards/{cardId}")
     public CardResponse update(
-            @PathVariable("cardId") UUID cardId,
-            @Valid @RequestBody CardSaveRequest request) {
+        @PathVariable("cardId")
+        UUID cardId,
+        @Valid
+        @RequestBody
+        CardSaveRequest request) {
         return cardService.update(cardId, request);
     }
 
     @DeleteMapping("/api/v1/admin/cards/{cardId}")
-    public ResponseEntity<Void> delete(@PathVariable("cardId") UUID cardId) {
+    public ResponseEntity<Void> delete(@PathVariable("cardId")
+    UUID cardId) {
         cardService.delete(cardId);
         return ResponseEntity.noContent()
-                .build();
+            .build();
     }
 
 }

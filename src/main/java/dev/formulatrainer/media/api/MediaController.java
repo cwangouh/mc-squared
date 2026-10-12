@@ -29,28 +29,36 @@ public class MediaController {
 
     @PutMapping(value = "/api/v1/admin/cards/{cardId}/images/{side}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CardResponse upload(
-            @PathVariable("cardId") UUID cardId,
-            @PathVariable("side") String side,
-            @RequestParam("file") MultipartFile file,
-            @Size(max = 500, message = "Alternative text must be at most 500 characters") @RequestParam(value = "altText", required = false) String altText) {
+        @PathVariable("cardId")
+        UUID cardId,
+        @PathVariable("side")
+        String side,
+        @RequestParam("file")
+        MultipartFile file,
+        @Size(max = 500, message = "Alternative text must be at most 500 characters")
+        @RequestParam(value = "altText", required = false)
+        String altText) {
         return mediaService.upload(cardId, parseSide(side), file, altText);
     }
 
     @DeleteMapping("/api/v1/admin/cards/{cardId}/images/{side}")
     public ResponseEntity<Void> delete(
-            @PathVariable("cardId") UUID cardId,
-            @PathVariable("side") String side) {
+        @PathVariable("cardId")
+        UUID cardId,
+        @PathVariable("side")
+        String side) {
         mediaService.delete(cardId, parseSide(side));
         return ResponseEntity.noContent()
-                .build();
+            .build();
     }
 
-    @GetMapping({ "/api/v1/media/{mediaId}", "/media/{mediaId}" })
-    public ResponseEntity<Resource> read(@PathVariable("mediaId") UUID mediaId) {
+    @GetMapping({"/api/v1/media/{mediaId}", "/media/{mediaId}"})
+    public ResponseEntity<Resource> read(@PathVariable("mediaId")
+    UUID mediaId) {
         MediaService.StoredMedia media = mediaService.read(mediaId);
         return ResponseEntity.ok()
-                .contentType(media.contentType())
-                .body(media.resource());
+            .contentType(media.contentType())
+            .body(media.resource());
     }
 
     private static CardSide parseSide(String side) {

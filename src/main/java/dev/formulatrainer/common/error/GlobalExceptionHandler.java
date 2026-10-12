@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PayloadTooLargeException.class)
     public ResponseEntity<ApiErrorResponse> handlePayloadTooLarge(PayloadTooLargeException exception) {
-        return build(HttpStatus.CONTENT_TOO_LARGE, "CONTENT_TOO_LARGE", exception.getMessage());
+        return build(HttpStatus.CONTENT_TOO_LARGE, "PAYLOAD_TOO_LARGE", exception.getMessage());
     }
 
     @ExceptionHandler(UnsupportedMediaFileException.class)

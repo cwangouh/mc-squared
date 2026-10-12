@@ -52,19 +52,19 @@ public class ImageStorageService {
             }
 
             String storageKey = UUID.randomUUID() + "." + metadata.format()
-                    .extension();
+                .extension();
             Path target = resolve(storageKey);
             Files.move(tempFile, target, StandardCopyOption.ATOMIC_MOVE);
             tempFile = null;
 
             return new StoredImage(
-                    storageKey,
-                    file.getOriginalFilename(),
-                    metadata.format()
-                            .contentType(),
-                    file.getSize(),
-                    metadata.widthPx(),
-                    metadata.heightPx());
+                storageKey,
+                file.getOriginalFilename(),
+                metadata.format()
+                    .contentType(),
+                file.getSize(),
+                metadata.widthPx(),
+                metadata.heightPx());
         } catch (PayloadTooLargeException | UnsupportedMediaFileException | IllegalArgumentException exception) {
             throw exception;
         } catch (IOException exception) {
@@ -116,11 +116,11 @@ public class ImageStorageService {
 
     private Path resolve(String storageKey) {
         Path resolved = properties.storagePath()
-                .resolve(storageKey)
-                .normalize();
+            .resolve(storageKey)
+            .normalize();
         if (!resolved.startsWith(
-                properties.storagePath()
-                        .normalize())) {
+            properties.storagePath()
+                .normalize())) {
             throw new IllegalArgumentException("Invalid storage key");
         }
         return resolved;

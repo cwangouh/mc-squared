@@ -2,7 +2,6 @@ package dev.formulatrainer.media;
 
 import dev.formulatrainer.common.error.PayloadTooLargeException;
 import dev.formulatrainer.common.error.UnsupportedMediaFileException;
-import jakarta.annotation.PostConstruct;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,28 +9,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
-import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
-public class ImageStorageService {
+@Component
+class ImageFileProcessor {
 
     private final MediaProperties properties;
 
-    public ImageStorageService(MediaProperties properties) {
+    ImageFileProcessor(MediaProperties properties) {
         this.properties = properties;
     }
 
-    @PostConstruct
-    void createStorageDirectory() throws IOException {
-        Files.createDirectories(properties.storagePath());
-    }
-
-    StoredImage store(MultipartFile file) {
+    PreparedImage prepare(MultipartFile file, Path temporaryDirectory) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Image file is required");
         }
@@ -39,50 +32,39 @@ public class ImageStorageService {
             throw new PayloadTooLargeException("Image file is too large");
         }
 
-        Path tempFile = null;
+        Path temporaryFile = null;
         try {
-            tempFile = Files.createTempFile(properties.storagePath(), "upload-", ".tmp");
+            temporaryFile = temporaryDirectory == null
+                ? Files.createTempFile("formula-trainer-upload-", ".tmp")
+                : Files.createTempFile(temporaryDirectory, "upload-", ".tmp");
             try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, temporaryFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            ImageMetadata metadata = readMetadata(tempFile);
+            ImageMetadata metadata = readMetadata(temporaryFile);
             if (metadata.widthPx() > properties.maxWidthPx() || metadata.heightPx() > properties.maxHeightPx()) {
                 throw new PayloadTooLargeException("Image dimensions are too large");
             }
 
-            String storageKey = UUID.randomUUID() + "." + metadata.format()
-                .extension();
-            Path target = resolve(storageKey);
-            Files.move(tempFile, target, StandardCopyOption.ATOMIC_MOVE);
-            tempFile = null;
-
-            return new StoredImage(
-                storageKey,
+            Path preparedFile = temporaryFile;
+            temporaryFile = null;
+            return new PreparedImage(
+                preparedFile,
                 file.getOriginalFilename(),
-                metadata.format()
-                    .contentType(),
+                metadata.format(),
                 file.getSize(),
                 metadata.widthPx(),
                 metadata.heightPx());
         } catch (PayloadTooLargeException | UnsupportedMediaFileException | IllegalArgumentException exception) {
             throw exception;
         } catch (IOException exception) {
-            throw new IllegalStateException("Failed to store image file", exception);
+            throw new IllegalStateException("Failed to prepare image file", exception);
         } finally {
-            deleteIfExists(tempFile);
+            deleteIfExists(temporaryFile);
         }
     }
 
-    Path path(String storageKey) {
-        return resolve(storageKey);
-    }
-
-    void delete(String storageKey) {
-        deleteIfExists(resolve(storageKey));
-    }
-
-    private ImageMetadata readMetadata(Path file) throws IOException {
+    private static ImageMetadata readMetadata(Path file) throws IOException {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(file.toFile())) {
             if (imageInputStream == null) {
                 throw new UnsupportedMediaFileException("Unsupported image file");
@@ -114,18 +96,6 @@ public class ImageStorageService {
         }
     }
 
-    private Path resolve(String storageKey) {
-        Path resolved = properties.storagePath()
-            .resolve(storageKey)
-            .normalize();
-        if (!resolved.startsWith(
-            properties.storagePath()
-                .normalize())) {
-            throw new IllegalArgumentException("Invalid storage key");
-        }
-        return resolved;
-    }
-
     private static void deleteIfExists(Path path) {
         if (path == null) {
             return;
@@ -137,7 +107,30 @@ public class ImageStorageService {
         }
     }
 
-    private record ImageMetadata(ImageFormat format, int widthPx, int heightPx) {
+    record PreparedImage(
+        Path path,
+        String originalFilename,
+        ImageFormat format,
+        long sizeBytes,
+        int widthPx,
+        int heightPx) implements AutoCloseable {
+
+        StoredImage toStoredImage(String storageKey) {
+            return new StoredImage(
+                storageKey,
+                originalFilename,
+                format.contentType(),
+                sizeBytes,
+                widthPx,
+                heightPx);
+        }
+
+        @Override
+        public void close() {
+            deleteIfExists(path);
+        }
     }
 
+    private record ImageMetadata(ImageFormat format, int widthPx, int heightPx) {
+    }
 }

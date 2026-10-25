@@ -10,6 +10,7 @@ Backend for an MVP formula-card trainer.
 - PostgreSQL
 - Flyway
 - Docker Compose
+- AWS SDK for S3-compatible object storage
 
 ## Local Run
 
@@ -75,6 +76,31 @@ Required database variables:
 - `DB_PASSWORD`
 
 Hibernate schema generation is disabled. Database schema changes are managed by Flyway migrations.
+
+## Image Storage
+
+Local development stores uploaded images in `MEDIA_STORAGE_PATH`. This is the default:
+
+```env
+MEDIA_STORAGE_TYPE=local
+MEDIA_STORAGE_PATH=./data/media
+```
+
+Production can use a private S3-compatible bucket. Create the bucket with your storage provider, then put its access details in `.env`:
+
+```env
+MEDIA_STORAGE_TYPE=s3
+S3_ENDPOINT=https://s3.example.com
+S3_REGION=region-1
+S3_BUCKET=<bucket-name>
+S3_ACCESS_KEY=<access-key>
+S3_SECRET_KEY=<secret-key>
+S3_PATH_STYLE_ACCESS=true
+```
+
+Do not commit `.env` or S3 credentials. The application uploads, reads, and deletes objects through the S3 API. Browser clients continue to use `/api/v1/media/{id}`, so the bucket can remain private and does not require browser CORS configuration.
+
+The bucket must already exist; the application does not attempt to create one. Existing files from `MEDIA_STORAGE_PATH` are not migrated automatically when storage is switched to S3.
 
 ## Authentication Flow
 

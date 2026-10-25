@@ -27,6 +27,7 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-formula_trainer}
       DB_USERNAME: ${POSTGRES_USER:-formula_trainer}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-formula_trainer}
+      MEDIA_STORAGE_TYPE: ${MEDIA_STORAGE_TYPE:-local}
       MEDIA_STORAGE_PATH: /var/lib/formula-trainer/media
     ports:
       - "${APP_PORT:-8080}:8080"

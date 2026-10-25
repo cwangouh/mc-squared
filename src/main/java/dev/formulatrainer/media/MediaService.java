@@ -5,9 +5,7 @@ import dev.formulatrainer.card.CardMapper;
 import dev.formulatrainer.card.CardRepository;
 import dev.formulatrainer.card.api.CardResponse;
 import dev.formulatrainer.common.error.ResourceNotFoundException;
-import java.nio.file.Path;
 import java.util.UUID;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -23,19 +21,19 @@ public class MediaService {
 
     private final MediaRepository mediaRepository;
 
-    private final ImageStorageService imageStorageService;
+    private final ImageStorage imageStorage;
 
     public MediaService(
-        CardRepository cardRepository, MediaRepository mediaRepository, ImageStorageService imageStorageService) {
+        CardRepository cardRepository, MediaRepository mediaRepository, ImageStorage imageStorage) {
         this.cardRepository = cardRepository;
         this.mediaRepository = mediaRepository;
-        this.imageStorageService = imageStorageService;
+        this.imageStorage = imageStorage;
     }
 
     @Transactional
     public CardResponse upload(UUID cardId, CardSide side, MultipartFile file, String altText) {
         Card card = findCard(cardId);
-        StoredImage image = imageStorageService.store(file);
+        StoredImage image = imageStorage.store(file);
         deleteFileAfterRollback(image.storageKey());
         String oldStorageKey = null;
         try {
@@ -62,7 +60,7 @@ public class MediaService {
             deleteFileAfterCommit(oldStorageKey);
             return CardMapper.toResponse(card);
         } catch (RuntimeException exception) {
-            imageStorageService.delete(image.storageKey());
+            imageStorage.delete(image.storageKey());
             throw exception;
         }
     }
@@ -91,11 +89,7 @@ public class MediaService {
         Media media = mediaRepository.findById(mediaId)
             .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
 
-        Path path = imageStorageService.path(media.getStorageKey());
-        Resource resource = new FileSystemResource(path);
-        if (!resource.exists()) {
-            throw new ResourceNotFoundException("Image not found");
-        }
+        Resource resource = imageStorage.read(media.getStorageKey());
         return new StoredMedia(resource, MediaType.parseMediaType(media.getContentType()));
     }
 
@@ -107,14 +101,14 @@ public class MediaService {
     private void deleteFileAfterCommit(String storageKey) {
         if (storageKey != null) {
             if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-                imageStorageService.delete(storageKey);
+                imageStorage.delete(storageKey);
                 return;
             }
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 
                 @Override
                 public void afterCommit() {
-                    imageStorageService.delete(storageKey);
+                    imageStorage.delete(storageKey);
                 }
 
             });
@@ -128,7 +122,7 @@ public class MediaService {
                 @Override
                 public void afterCompletion(int status) {
                     if (status == STATUS_ROLLED_BACK) {
-                        imageStorageService.delete(storageKey);
+                        imageStorage.delete(storageKey);
                     }
                 }
 

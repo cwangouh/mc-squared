@@ -25,10 +25,18 @@ server:
 
 app:
   media:
+    storage-type: ${MEDIA_STORAGE_TYPE:local}
     storage-path: ${MEDIA_STORAGE_PATH:/var/lib/formula-trainer/media}
     max-size-bytes: 5242880
     max-width-px: 4096
     max-height-px: 4096
+    s3:
+      endpoint: ${S3_ENDPOINT:}
+      region: ${S3_REGION:}
+      bucket: ${S3_BUCKET:}
+      access-key: ${S3_ACCESS_KEY:}
+      secret-key: ${S3_SECRET_KEY:}
+      path-style-access: ${S3_PATH_STYLE_ACCESS:true}
   security:
     admin:
       username: ${ADMIN_USERNAME:admin}

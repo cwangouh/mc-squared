@@ -86,7 +86,7 @@ MEDIA_STORAGE_TYPE=local
 MEDIA_STORAGE_PATH=./data/media
 ```
 
-Production can use a private S3-compatible bucket. Create the bucket with your storage provider, then put its access details in `.env`:
+Production can use a private S3-compatible bucket. Create the bucket with your storage provider, then put its access details in `.env.prod`:
 
 ```env
 MEDIA_STORAGE_TYPE=s3
@@ -101,6 +101,33 @@ S3_PATH_STYLE_ACCESS=true
 Do not commit `.env` or S3 credentials. The application uploads, reads, and deletes objects through the S3 API. Browser clients continue to use `/api/v1/media/{id}`, so the bucket can remain private and does not require browser CORS configuration.
 
 The bucket must already exist; the application does not attempt to create one. Existing files from `MEDIA_STORAGE_PATH` are not migrated automatically when storage is switched to S3.
+
+## Production Run
+
+Production uses an external PostgreSQL database and does not start a database container. Copy the production environment template on the server and fill in the real credentials:
+
+```bash
+cp .env.prod.example .env.prod
+```
+
+The database and database user must already exist. `DB_URL` should use the host, port, database name, and SSL mode supplied by the database provider. Flyway applies pending migrations when the application starts.
+
+The CI pipeline should publish the application image to a container registry and set `APP_IMAGE` to that image. Start or update the backend with:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+```
+
+Check the deployment with:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=100 app
+curl http://127.0.0.1:8080/api/v1/health
+```
+
+The backend port is bound to loopback only. A reverse proxy running on the VPS can expose it over HTTPS. If the reverse proxy itself runs in Docker, place both services on a shared Docker network instead of publishing the backend port.
 
 ## Authentication Flow
 

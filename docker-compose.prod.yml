@@ -1,0 +1,26 @@
+services:
+  app:
+    image: ${APP_IMAGE:?Set APP_IMAGE in .env.prod}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: ${DB_URL:?Set DB_URL in .env.prod}
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME in .env.prod}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.prod}
+      MEDIA_STORAGE_TYPE: ${MEDIA_STORAGE_TYPE:-s3}
+      S3_ENDPOINT: ${S3_ENDPOINT:?Set S3_ENDPOINT in .env.prod}
+      S3_REGION: ${S3_REGION:?Set S3_REGION in .env.prod}
+      S3_BUCKET: ${S3_BUCKET:?Set S3_BUCKET in .env.prod}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?Set S3_ACCESS_KEY in .env.prod}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?Set S3_SECRET_KEY in .env.prod}
+      S3_PATH_STYLE_ACCESS: ${S3_PATH_STYLE_ACCESS:-true}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in .env.prod}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?Set ADMIN_PASSWORD_HASH in .env.prod}
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3

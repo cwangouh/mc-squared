@@ -28,3 +28,4 @@ target/
 
 # Local environment
 .env
+.env.prod

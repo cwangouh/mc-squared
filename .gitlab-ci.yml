@@ -8,7 +8,7 @@ variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   TESTCONTAINERS_HOST_OVERRIDE: docker
-  DEPLOY_PATH: /opt/formula-trainer
+  DEPLOY_PATH: /opt/apps/formula-trainer
   DEPLOY_PORT: "22"
 
 verify:
@@ -74,7 +74,11 @@ deploy-production:
         cd '$DEPLOY_PATH'
         test -f .env.prod
         APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-        APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 120
+        if ! APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 120; then
+          APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+          APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml logs --no-color --tail=200 app
+          exit 1
+        fi
       "
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_HOST'

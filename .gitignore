@@ -29,3 +29,4 @@ target/
 # Local environment
 .env
 .env.prod
+/certs/

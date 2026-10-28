@@ -1,0 +1,70 @@
+stages:
+  - verify
+  - build
+  - deploy
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dapi.version=1.44"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  TESTCONTAINERS_HOST_OVERRIDE: docker
+  DEPLOY_PATH: /opt/formula-trainer
+  DEPLOY_PORT: "22"
+
+verify:
+  stage: verify
+  image: maven:3.9-eclipse-temurin-21-alpine
+  services:
+    - name: docker:27.5.1-dind
+      alias: docker
+  cache:
+    key:
+      files:
+        - pom.xml
+    paths:
+      - .m2/repository
+  script:
+    - ./mvnw -B test
+
+build-image:
+  stage: build
+  image: docker:27.5.1-cli
+  services:
+    - name: docker:27.5.1-dind
+      alias: docker
+  before_script:
+    - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker build --pull --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" --tag "$CI_REGISTRY_IMAGE:latest" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+deploy-production:
+  stage: deploy
+  image: alpine:3.21
+  resource_group: production
+  environment:
+    name: production
+  before_script:
+    - apk add --no-cache openssh-client
+    - install -m 700 -d ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 600 ~/.ssh/known_hosts
+  script:
+    - ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH'"
+    - scp -P "$DEPLOY_PORT" docker-compose.prod.yml "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/docker-compose.prod.yml"
+    - printf '%s' "$DEPLOY_REGISTRY_PASSWORD" | ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "docker login --username '$DEPLOY_REGISTRY_USER' --password-stdin '$CI_REGISTRY'"
+    - |
+      ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "
+        set -eu
+        cd '$DEPLOY_PATH'
+        test -f .env.prod
+        APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+        APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 120
+      "
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_HOST'

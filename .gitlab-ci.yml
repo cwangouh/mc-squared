@@ -50,10 +50,20 @@ deploy-production:
   before_script:
     - apk add --no-cache openssh-client
     - install -m 700 -d ~/.ssh
-    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_ed25519
-    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
-    - chmod 600 ~/.ssh/known_hosts
+    - |
+      if [ -f "$SSH_PRIVATE_KEY" ]; then
+        install -m 600 "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+      else
+        printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+      fi
+    - |
+      if [ -f "$SSH_KNOWN_HOSTS" ]; then
+        install -m 600 "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+      else
+        printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+      fi
   script:
     - ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH'"
     - scp -P "$DEPLOY_PORT" docker-compose.prod.yml "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/docker-compose.prod.yml"
@@ -68,3 +78,5 @@ deploy-production:
       "
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_HOST'
+      when: manual
+      allow_failure: false

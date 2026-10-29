@@ -25,6 +25,9 @@ verify:
       - .m2/repository
   script:
     - ./mvnw -B test
+  rules:
+    - when: manual
+      allow_failure: false
 
 build-image:
   stage: build

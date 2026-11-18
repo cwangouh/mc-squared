@@ -70,14 +70,17 @@ deploy-production:
   script:
     - ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH'"
     - scp -P "$DEPLOY_PORT" docker-compose.prod.yml "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/docker-compose.prod.yml"
-    - printf '%s' "$DEPLOY_REGISTRY_PASSWORD" | ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "docker login --username '$DEPLOY_REGISTRY_USER' --password-stdin '$CI_REGISTRY'"
     - |
-      ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "
+      printf '%s' "$DEPLOY_REGISTRY_PASSWORD" | ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "
         set -eu
+        docker logout '$CI_REGISTRY' >/dev/null 2>&1 || true
+        docker_config=\$(mktemp -d)
+        trap 'rm -rf \$docker_config' 0
+        DOCKER_CONFIG=\$docker_config docker login --username '$DEPLOY_REGISTRY_USER' --password-stdin '$CI_REGISTRY'
         cd '$DEPLOY_PATH'
         test -f .env.prod
-        APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-        if ! APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 120; then
+        DOCKER_CONFIG=\$docker_config APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+        if ! DOCKER_CONFIG=\$docker_config APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 120; then
           APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml ps
           APP_IMAGE='$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA' docker compose --env-file .env.prod -f docker-compose.prod.yml logs --no-color --tail=200 app
           exit 1
